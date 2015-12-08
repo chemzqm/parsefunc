@@ -1,0 +1,149 @@
+#!/usr/bin/env node
+
+var program = require('commander')
+var parser = require('..')
+var path = require('path')
+var fs = require('fs')
+
+var options = {}
+
+program
+  .version('0.0.1')
+  .usage('file0 file1 file2 ...')
+  .option('-f, --file [file]', 'parse a file')
+  .option('-m, --module [module]', 'parse a module')
+  .option('-e, --encoding [name]', 'set file encoding')
+  .option('-a --all', 'parse all dependencies module of current project')
+  .parse(process.argv)
+
+options = {
+  encoding: program.encoding
+}
+
+var files = program.args
+
+var arr
+if (files.length) {
+  arr = files.reduce(function (pre, file) {
+    return pre.concat(parser.parseFile(file, options))
+  }, [])
+} else if (program.file) {
+  arr = parser.parseFile(program.file, options)
+} else if (program.module) {
+  var moduleDir = findModule(process.cwd(), program.module)
+  parser.parseModule(moduleDir, options, function (err, data) {
+    if (err) throw err
+    output(data)
+  })
+} else if (program.all) {
+  var modules = findModules(process.cwd())
+  modules.forEach(function (dir) {
+    console.log(dir)
+    parser.parseModule(dir, options, function (err, data) {
+      if (err) throw err
+      output(data)
+    })
+  }, [])
+} else {
+  stdin()
+}
+
+function stdin() {
+  var buf = ''
+  process.stdin.setEncoding('utf8')
+  process.stdin.on('data', function(chunk){ buf += chunk })
+  process.stdin.on('end', function(){
+    options.file = 'stdin'
+    var arr = parser.parse(buf, options)
+    output(arr)
+  }).resume()
+}
+
+if (arr) output(arr)
+
+function output(arr) {
+  if (!arr) return
+  arr.forEach(function (node) {
+    process.stdout.write(format(node) + '\n')
+  })
+}
+
+function exit(msg) {
+  console.error(msg) // eslint-disable-line
+  process.exit(1)
+}
+
+function locate(folder, name) {
+  if(folder === '/') return ''
+  var f= path.join(folder, name)
+  if (fs.existsSync(f)) {
+    return f
+  } else {
+    return locate(path.resolve(folder, '..'), name)
+  }
+}
+
+function findModule(dir, moduleName) {
+  var f = locate(dir, 'package.json')
+  if (!f) exit('package.json not found in ' + dir)
+  if (moduleName === 'this') return path.dirname(f)
+  var o = JSON.parse(fs.readFileSync(f))
+  if (o.browser && o.browser[moduleName]) {
+    var str = o.browser[moduleName]
+    if (typeof str === 'string') {
+      moduleName = str
+    }
+  }
+  dir = path.dirname(f)
+  var res = path.resolve(dir, 'node_modules', moduleName)
+  if (!fs.existsSync(res)) exit('module folder for ' + moduleName +  ' not found')
+  return res
+}
+
+function findModules(dir) {
+  var f = locate(dir, 'package.json')
+  if (!f) exit('package.json not found in ' + dir)
+  dir = path.dirname(f)
+  var o = require(f)
+  var deps = o.dependencies
+  var res = []
+  Object.keys(deps).forEach(function (name) {
+    res.push(path.resolve(dir, 'node_modules', name))
+  })
+  return res
+}
+
+function format (node, word) {
+  if (node.type === 'MemberExpression') return format(node.property, toString(node))
+  var sl = node.loc
+  var line = sl.start.line
+  var source = sl.source
+  word = word || toString(node)
+  return source + ':' + line + ':' + word
+}
+
+function toString (node) {
+  switch (node.type) {
+    case 'Identifier':
+      return node.name || ''
+    case 'ThisExpression':
+      return 'this'
+    case 'ArrayExpression':
+      var str = node.elements.reduce(function (p, node) {
+        return p + toString(node)
+      }, '')
+      return '[' + str + ']'
+    case 'MemberExpression':
+      return toString(node.object) + '.' +  toString(node.property)
+    case 'Literal':
+      return node.raw
+    case 'FunctionDeclaration':
+      return node.id.name
+    case 'FunctionExpression':
+      if (node.id == null) return ''
+      return node.id.name
+    default:
+      return ''
+  }
+}
+
