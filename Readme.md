@@ -4,26 +4,40 @@
 
 Parse the top level functions in a file or a module, useful for used with editor plugin.
 
+The backend of file parsing is done by [acorn](https://github.com/ternjs/acorn)
+
 ## Install
 
-    npm install parsefunc
+    npm install -g parsefunc
 
-## Usage
+## Example
+
+    # parse files
+    parsefunc fileA fileB
+
+    # parse files required by fileA
+    parsefunc -r fileA
+
+    # parse files of a module
+    parsefunc -m module
+
+    # parse files of current module
+    parsefunc -m this
+
+    # parse files of all modules in dependencies of package.json
+    parsefunc -a
+
+The output would looks like:
 
 ```
-Usage: parsefunc file0 file1 file2 ...
-
-Options:
-
-  -h, --help             output usage information
-  -V, --version          output the version number
-  -f, --file [file]      parse a file
-  -m, --module [module]  parse a module
-  -e, --encoding [name]  set file encoding
-  -a --all               parse all dependencies module of current project
+lib/index.js:9:exports.parse
+lib/index.js:14:exports.parseFiles
+lib/index.js:36:exports.parseModule
+lib/index.js:73:exports.parseRealtive
+lib/util.js:5:checkState
+lib/util.js:24:exports.parse
+lib/util.js:86:exports.suffixFile
 ```
-
-If module name is this, parse files used by current module.
 
 ## TODO
 

@@ -134,9 +134,10 @@ function toString (node) {
     case 'Literal':
       return node.raw
     case 'FunctionDeclaration':
+      if (node.id == null) return '<anonymous>'
       return node.id.name
     case 'FunctionExpression':
-      if (node.id == null) return ''
+      if (node.id == null) return '<anonymous>'
       return node.id.name
     default:
       return ''

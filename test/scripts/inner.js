@@ -6,6 +6,10 @@ function abc() {
   }
   arr.forEach(function () {
   })
+
+  exports.awesome = function () {
+    
+  }
 }
 
 abc.prototype.tmd = function () {

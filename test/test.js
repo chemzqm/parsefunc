@@ -14,10 +14,11 @@ describe('parse funcs', function() {
     fs.readFile(resolve('inner.js'), 'utf8', function (err, data) {
       if (err) return done(err)
       var fns = parser.parse(data, {file: 'stdin'})
-      assert.equal(fns.length, 4)
+      assert.equal(fns.length, 5)
       var names = fns.map(function (node) {
         return toString(node)
       })
+      assert(names.indexOf('exports.awesome') !== -1)
       assert(names.indexOf('abc') !== -1)
       assert(names.indexOf('this.xyz') !== -1)
       assert(names.indexOf('abc.prototype.tmd') !== -1)
@@ -27,14 +28,15 @@ describe('parse funcs', function() {
   })
 
   it('should parse files', function (done) {
-    var files = [resolve('inner.js'), resolve('other.js')]
+    var files = [resolve('inner.js'), resolve('other.js'), resolve('exports.js')]
     parser.parseFiles(files, null, function (err, fns) {
       if (err) return done(err)
-      assert.equal(fns.length, 5)
+      assert.equal(fns.length, 7)
       var names = fns.map(function (node) {
         return toString(node)
       })
       assert(names.indexOf('other') !== -1)
+      assert(names.indexOf('module.exports') !== -1)
       done()
     })
   })
@@ -82,7 +84,7 @@ function toString (node) {
     case 'FunctionDeclaration':
       return node.id.name
     case 'FunctionExpression':
-      if (node.id == null) return ''
+      if (node.id == null) return '<anonymous>'
       return node.id.name
     default:
       return ''
