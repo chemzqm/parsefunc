@@ -3,10 +3,8 @@ function abc() {
     return a
   }
   this.xyz = function () {
-    console.log(111)
   }
   arr.forEach(function () {
-    console.log(1234)
   })
 }
 

@@ -5,6 +5,7 @@
   "description": "parse top level functions from file or module",
   "main": "index.js",
   "scripts": {
+    "test": "mocha"
   },
   "author": "chemzqm@gmail.com",
   "license": "MIT",

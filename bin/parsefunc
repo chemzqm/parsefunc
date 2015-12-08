@@ -10,41 +10,34 @@ var options = {}
 program
   .version('0.0.1')
   .usage('file0 file1 file2 ...')
-  .option('-f, --file [file]', 'parse a file')
+  .option('-r, --relative [file]', 'parse funtions relative required by this file')
   .option('-m, --module [module]', 'parse a module')
   .option('-e, --encoding [name]', 'set file encoding')
   .option('-a --all', 'parse all dependencies module of current project')
   .parse(process.argv)
 
 options = {
-  encoding: program.encoding
+  encoding: program.encoding,
+  versiont: program.version
 }
 
 var files = program.args
 
-var arr
 if (files.length) {
-  arr = files.reduce(function (pre, file) {
-    return pre.concat(parser.parseFile(file, options))
-  }, [])
-} else if (program.file) {
-  arr = parser.parseFile(program.file, options)
-} else if (program.module) {
-  var moduleDir = findModule(process.cwd(), program.module)
-  parser.parseModule(moduleDir, options, function (err, data) {
-    if (err) throw err
-    output(data)
-  })
+  parser.parseFiles(files, options, callback)
+}
+if (program.relative) {
+  if (!fs.existsSync(program.relative)) exit('relative file ' + program.relative + ' not exist')
+  parser.parseRealtive(program.relative, options, callback)
 } else if (program.all) {
   var modules = findModules(process.cwd())
   modules.forEach(function (dir) {
-    console.log(dir)
-    parser.parseModule(dir, options, function (err, data) {
-      if (err) throw err
-      output(data)
-    })
+    parser.parseModule(dir, options, callback)
   }, [])
-} else {
+} else if (program.module) {
+  var moduleDir = findModule(process.cwd(), program.module)
+  parser.parseModule(moduleDir, options, callback)
+} else if (!files.length) {
   stdin()
 }
 
@@ -59,13 +52,16 @@ function stdin() {
   }).resume()
 }
 
-if (arr) output(arr)
-
 function output(arr) {
   if (!arr) return
   arr.forEach(function (node) {
     process.stdout.write(format(node) + '\n')
   })
+}
+
+function callback(err, data) {
+  if (err) exit(err.message)
+  output(data)
 }
 
 function exit(msg) {
@@ -96,7 +92,7 @@ function findModule(dir, moduleName) {
   }
   dir = path.dirname(f)
   var res = path.resolve(dir, 'node_modules', moduleName)
-  if (!fs.existsSync(res)) exit('module folder for ' + moduleName +  ' not found')
+  if (!fs.existsSync(res)) exit('module ' + moduleName +  ' folder not found')
   return res
 }
 
