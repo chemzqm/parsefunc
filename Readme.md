@@ -1,5 +1,7 @@
 # Parsefunc
 
+[![Build Status](https://img.shields.io/travis/chemzqm/parsefunc/master.svg?style=flat-square)](http://travis-ci.org/chemzqm/parsefunc)
+
 Parse the top level functions in a file or a module, useful for used with editor plugin.
 
 ## Install
