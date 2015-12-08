@@ -2,9 +2,22 @@
 
 [![Build Status](https://img.shields.io/travis/chemzqm/parsefunc/master.svg?style=flat-square)](http://travis-ci.org/chemzqm/parsefunc)
 
-Parse the top level functions in a file or a module, useful for used with editor plugin.
+Parse the exports functions in a file or a module, useful for used with editor plugin.
 
 The backend of file parsing is done by [acorn](https://github.com/ternjs/acorn)
+
+Beside top level functions, it can understands the exported functions:
+
+``` js
+// assigned to this
+this.xyz = function(){}
+// assigned to prototype
+Emitter.prototype.on = function(){}
+// assigned to module.exports
+module.exports = function(){}
+// assigned to exports
+exports.dosomething = function(){}
+```
 
 ## Install
 
