@@ -13,5 +13,8 @@
     "acorn": "^2.6.4",
     "commander": "^2.9.0",
     "node-parallel": "^0.1.5"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.4"
   }
 }
