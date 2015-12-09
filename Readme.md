@@ -6,7 +6,7 @@ Parse the exports functions in a file or a module, useful for used with editor p
 
 The backend of file parsing is done by [acorn](https://github.com/ternjs/acorn)
 
-Beside top level functions, it can understands the exported functions:
+Beside top level functions, it can understands the exported functions like:
 
 ``` js
 // assigned to this
