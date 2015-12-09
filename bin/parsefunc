@@ -8,10 +8,10 @@ var fs = require('fs')
 var options = {}
 
 program
-  .version('0.0.1')
+  .version(require('../package.json').version)
   .usage('file0 file1 file2 ...')
   .option('-r, --relative [file]', 'parse funtions relative required by this file')
-  .option('-m, --module [module]', 'parse a module')
+  .option('-m, --module [module | file]', 'parse a module or modules required by the file')
   .option('-e, --encoding [name]', 'set file encoding')
   .option('-a --all', 'parse all dependencies module of current project')
   .parse(process.argv)
@@ -28,15 +28,22 @@ if (files.length) {
 }
 if (program.relative) {
   if (!fs.existsSync(program.relative)) exit('relative file ' + program.relative + ' not exist')
-  parser.parseRealtive(program.relative, options, callback)
+  parser.parseRelative(program.relative, options, callback)
 } else if (program.all) {
   var modules = findModules(process.cwd())
   modules.forEach(function (dir) {
     parser.parseModule(dir, options, callback)
   }, [])
 } else if (program.module) {
-  var moduleDir = findModule(process.cwd(), program.module)
-  parser.parseModule(moduleDir, options, callback)
+  var m = program.module
+  var dir = findModule(process.cwd(), program.module)
+  if (fs.existsSync(dir)) {
+    parser.parseModule(dir, options, callback)
+  } else {
+    if (!fs.existsSync(m)) exit(m + ' not exist as file or module')
+    // a file
+    parser.parseModules(m, options, callback)
+  }
 } else if (!files.length) {
   stdin()
 }
@@ -92,7 +99,6 @@ function findModule(dir, moduleName) {
   }
   dir = path.dirname(f)
   var res = path.resolve(dir, 'node_modules', moduleName)
-  if (!fs.existsSync(res)) exit('module ' + moduleName +  ' folder not found')
   return res
 }
 

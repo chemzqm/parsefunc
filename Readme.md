@@ -19,6 +19,8 @@ module.exports = function(){}
 exports.dosomething = function(){}
 ```
 
+The `browser` field in package.json(used for name alias) used by webpack and browserify is also considered.
+
 ## Install
 
     npm install -g parsefunc
@@ -32,6 +34,9 @@ exports.dosomething = function(){}
 
     # parse files of a module
     parsefunc -m module
+
+    # parse modules used by a file
+    parsefunc -m ./fileA
 
     # parse files of current module
     parsefunc -m this
@@ -48,7 +53,7 @@ The output would looks like:
 lib/index.js:9:exports.parse
 lib/index.js:14:exports.parseFiles
 lib/index.js:36:exports.parseModule
-lib/index.js:73:exports.parseRealtive
+lib/index.js:73:exports.parseRelative
 lib/util.js:5:checkState
 lib/util.js:24:exports.parse
 lib/util.js:86:exports.suffixFile

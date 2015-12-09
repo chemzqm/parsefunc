@@ -1,6 +1,7 @@
 /*global describe, it*/
 
 var parser = require('..')
+var util = require('../lib/util')
 var fs = require('fs')
 var path = require('path')
 var assert = require('assert')
@@ -8,6 +9,22 @@ var assert = require('assert')
 function resolve(p) {
   return path.resolve(__dirname, './scripts/' + p)
 }
+
+describe('resolve to file', function() {
+  it('should resolve by module name', function () {
+    var full = path.resolve(__dirname, '../lib/index.js')
+    var relative = path.relative(process.cwd(), full)
+    var res = util.resolveToFile('commander', relative)
+    assert(/commander\/index\.js$/.test(res))
+  })
+
+  it('should resolve by path', function () {
+    var full = path.resolve(__dirname, '../lib/index.js')
+    var relative = path.relative(process.cwd(), full)
+    var res = util.resolveToFile('mocha/lib/runner', relative)
+    assert(/\lib\/runner\.js/.test(res))
+  })
+})
 
 describe('parse funcs', function() {
   it('should parse content', function (done) {
@@ -41,6 +58,19 @@ describe('parse funcs', function() {
     })
   })
 
+  it('should parse modules required by file', function (done) {
+    var file = resolve('module/index.js')
+    parser.parseModules(file, {}, function (err, fns) {
+      if (err) return done(err)
+      var names = fns.map(function (node) {
+        return toString(node)
+      })
+      assert.notEqual(names.indexOf('bar'), -1)
+      assert.notEqual(names.indexOf('foo'), -1)
+      done()
+    })
+  })
+
   it('should parse module', function (done) {
     var dir = resolve('module')
     parser.parseModule(dir, {}, function (err, fns) {
@@ -58,7 +88,7 @@ describe('parse funcs', function() {
 
   it('sholud parse relative files', function (done) {
     var relative = resolve('module/index.js')
-    parser.parseRealtive(relative, {}, function (err, fns) {
+    parser.parseRelative(relative, {}, function (err, fns) {
       if (err)  return done(err)
       assert.equal(fns.length, 1)
       done()
