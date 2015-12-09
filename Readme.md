@@ -2,7 +2,8 @@
 
 [![Build Status](https://img.shields.io/travis/chemzqm/parsefunc/master.svg?style=flat-square)](http://travis-ci.org/chemzqm/parsefunc)
 
-Parse the exports functions in a file or a module, useful for used with editor plugin.
+Parse the exports functions in a file or a module, useful for used with editor plugin
+(like the vim plugin [unite-js-func](https://github.com/chemzqm/unite-js-func)).
 
 The backend of file parsing is done by [acorn](https://github.com/ternjs/acorn)
 
