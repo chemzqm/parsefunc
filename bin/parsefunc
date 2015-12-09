@@ -114,6 +114,9 @@ function format (node, word) {
   var sl = node.loc
   var line = sl.start.line
   var source = sl.source
+  if (program.module === 'this' && path.isAbsolute(source)) {
+    source = path.relative(process.cwd(), source)
+  }
   word = word || toString(node)
   return source + ':' + line + ':' + word
 }
