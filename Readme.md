@@ -24,7 +24,6 @@ exports.dosomething = function(){}
     npm install -g parsefunc
 
 ## Example
-
     # parse files
     parsefunc fileA fileB
 
@@ -39,6 +38,9 @@ exports.dosomething = function(){}
 
     # parse files of all modules in dependencies of package.json
     parsefunc -a
+
+    # parse from stdin
+    cat index.js | parsefunc
 
 The output would looks like:
 
