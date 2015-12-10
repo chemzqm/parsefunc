@@ -65,7 +65,6 @@ describe('parse funcs', function() {
       var names = fns.map(function (node) {
         return toString(node)
       })
-      console.log(names)
       assert.notEqual(names.indexOf('bar'), -1)
       assert.notEqual(names.indexOf('foo'), -1)
       done()
