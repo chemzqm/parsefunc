@@ -1,7 +1,7 @@
 {
   "name": "parsefunc",
   "bin": "bin/parsefunc",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "parse top level functions from file or module",
   "main": "index.js",
   "scripts": {
